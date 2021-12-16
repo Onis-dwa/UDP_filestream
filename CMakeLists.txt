@@ -3,7 +3,9 @@ project (UDP_filestream)
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 add_executable(udp_server)
+add_executable(udp_client)
 set_property(TARGET udp_server PROPERTY CXX_STANDARD 20)
+set_property(TARGET udp_client PROPERTY CXX_STANDARD 20)
 
 # compiler options
 if (${CMAKE_BUILD_TYPE} STREQUAL "Release")
@@ -14,6 +16,7 @@ if (${CMAKE_BUILD_TYPE} STREQUAL "Release")
 endif()
 
 target_include_directories(udp_server PRIVATE "common") # for include resolve
+target_include_directories(udp_client PRIVATE "common") # for include resolve
 add_subdirectory(common)
 add_subdirectory(udp_server)
-#add_subdirectory(udp_client)
+add_subdirectory(udp_client)
