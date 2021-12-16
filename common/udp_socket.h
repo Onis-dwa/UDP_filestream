@@ -26,18 +26,19 @@ public:
     	err_bind,
 
     	bind,
-    	closed,
+
+    	stop_req,
     };
 	
     udp_socket();
-
-    //accept();
-    status sbind(const char* address, uint16_t port);
+    
+    status start(const char* address, uint16_t port);
+    status stop();
 	
     //send();
     //recv();
 
-    uint16_t getPort();
+    uint16_t getPort() const;
 
 private:
 #ifdef _WIN32
@@ -48,6 +49,7 @@ private:
 #endif
     char _buffer[data_size] = { 0 };
 
-    uint16_t port;
+    status _status;
+    uint16_t _port;
 	// string addr?
 };

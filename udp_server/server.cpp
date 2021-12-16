@@ -8,7 +8,7 @@ server::server() {
 }
 
 int server::exec() {
-	auto rc = _socket.sbind("127.0.0.1", 0);
+	auto rc = _socket.start("127.0.0.1", 32094);
 	if (rc != udp_socket::status::bind) {
 		cout << "err on bind. status: " << (uint32_t)rc << " " << WSAGetLastError() << endl;
 		return 1;
