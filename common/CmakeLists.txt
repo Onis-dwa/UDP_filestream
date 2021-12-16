@@ -1,0 +1,6 @@
+
+IF (WIN32)
+	target_sources(udp_server PRIVATE "udp_socket.h" "udp_socket_w32.cpp")
+elseif(UNIX)
+	target_sources(udp_server PRIVATE "udp_socket.h" "udp_socket_unix.cpp")
+endif()
