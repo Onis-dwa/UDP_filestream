@@ -4,16 +4,24 @@
 using std::cout;
 using std::endl;
 
-server::server() {
+server::server():
+	_socket()
+{}
+
+udp_socket::status server::start(const string & addr, const uint16_t port) {
+	if (_socket.init(addr.c_str(), port) != udp_socket::status::init)
+		return udp_socket::status::init;
+	return _socket.start();
+}
+
+uint16_t server::getServerPort() const {
+	return _socket.getPort();
 }
 
 int server::exec() {
-	auto rc = _socket.start("127.0.0.1", 32094);
-	if (rc != udp_socket::status::bind) {
-		cout << "err on bind. status: " << (uint32_t)rc << " " << WSAGetLastError() << endl;
-		return 1;
+	while (true) {
+		auto p = _socket.udp_recv();
+		cout << "recv: " << p.first.dataSize << endl;
 	}
-	
-	cout << "listen success. port: " << _socket.getPort() << endl;;
 	return 0;
 }

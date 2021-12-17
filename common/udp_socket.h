@@ -1,5 +1,6 @@
 #pragma once
 
+#include <string>
 #include <cstdint>
 
 #ifdef _WIN32
@@ -14,42 +15,83 @@ int initWSSock(); // init windows sockets
 
 #endif
 
+using std::string;
+using std::pair;
+
 // максимальный размер буфера
+constexpr uint32_t packet_size = 1472;
 constexpr uint32_t data_size = 1455;
+
+enum class packetType: uint8_t {
+	PUT = 0,
+	ACK
+};
+
+struct packetData {
+	uint32_t seq_number;     // номер пакета
+	uint32_t seq_total;      // количество пакетов
+	//uint8_t id[8];           // идентификатор
+	uint64_t id;             // идентификатор не массивом, так проще
+	packetType type;         // тип пакета переместил вниз, из-за выравнивания
+	uint8_t data[data_size]; // данные
+};
+static_assert(sizeof(packetData) == packet_size, "packet size incorrect");
+
+struct metaData {
+	int dataSize;      // количество прочитанных данных
+	uint32_t address;  // адрес клиента
+	uint16_t port;     // порт клиента
+};
+
+constexpr uint32_t POLY = 0x82f63b78;
+static inline uint32_t crc32c(uint32_t crc, const unsigned char* buf, size_t len) {
+	crc = ~crc;
+	while (len--) {
+		crc ^= *buf++;
+		for (int k = 0; k < 8; k++)
+			crc = crc & 1 ? (crc >> 1) ^ POLY : crc >> 1;
+	}
+	return ~crc;
+}
 
 class udp_socket {
 public:
-    enum class status : uint8_t {
-        no_init = 0,
-    	err_init,
-    	err_addr,
-    	err_bind,
+	enum class status : uint8_t {
+		no_init = 0,
+		err_init,
+		err_addr,
+		err_bind,
 
-    	bind,
+		init,
+		bind,
 
-    	stop_req,
-    };
+		init_req,
+		stop_req,
+	};
 	
-    udp_socket();
-    
-    status start(const char* address, uint16_t port);
-    status stop();
-	
-    //send();
-    //recv();
+	udp_socket();
 
-    uint16_t getPort() const;
+	status init(const char* address, uint16_t port);
+	status start();
+	status stop();
+
+	int udp_send (const packetData& pd, const int dataSize); // отправка используя _address
+	int udp_sendC(const packetData& pd, const metaData& md); // отправка по креденшелам
+	pair<metaData, packetData*> udp_recv();
+	
+	uint16_t getPort() const;
+	uint32_t getAddr() const;
 
 private:
 #ifdef _WIN32
-    SOCKET _socket = INVALID_SOCKET;
+	SOCKET _socket = INVALID_SOCKET;
+	sockaddr_in _address; // дабы каждый раз не генерить
+	socklen_t _addressLen;
 #elif __linux__
-    int _socket;
-    struct sockaddr_in _address;
+	int _socket;
+	struct sockaddr_in _address;
 #endif
-    char _buffer[data_size] = { 0 };
-
-    status _status;
-    uint16_t _port;
-	// string addr?
+	packetData _buffer = { 0 };
+	
+	status _status;
 };

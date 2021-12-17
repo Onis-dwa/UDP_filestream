@@ -8,10 +8,17 @@ int main() {
 #ifdef _WIN32
 	if (initWSSock()) { return 1; } // init failed
 #endif
-	client srv;
-	srv.connect();
-
-	cout << "end" << endl;
+	client cl;
+	auto rc = cl.connectTo("127.0.0.1", 32094);
+	if (rc != udp_socket::status::init) {
+		cout << "Err on init. status: " << (uint32_t)rc
+			<< " WinError: " << WSAGetLastError() << endl;
+		return 1;
+	}
+	cout << "Connected?" << endl;
+	
+	const auto erc = cl.exec();
+	cout << "Server stopped with code: " << erc << endl;
 #ifdef _WIN32
 	WSACleanup();
 #endif
