@@ -36,6 +36,8 @@ udp_socket::status udp_socket::init(const char* address, uint16_t port) {
 	//                        SOCK_STREAM, IPPROTO_TCP
 	//                        SOCK_DGRAM,  IPPROTO_UDP
 	_socket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+	if (_socket == INVALID_SOCKET)
+		return _status = status::err_init;
 
 	// Структура хост/порт/протокол
 	_address.sin_family = AF_INET;
