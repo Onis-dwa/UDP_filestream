@@ -115,7 +115,7 @@ bool client::getId() {
 				}
 			}
 			
-			this_thread::sleep_until(steady_clock::now()+ microseconds(5));
+			this_thread::sleep_until(steady_clock::now()+ microseconds(50));
 		}
 		--cnt;
 	}

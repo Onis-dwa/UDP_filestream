@@ -37,7 +37,14 @@ int server::exec() {
 			// если id нету сгенерируем
 			if (p.second->id == 0) {
 				p.second->id = mersenne();
+#if CXX_VERSION == 20
 				while (_packets.contains(p.second->id)) p.second->id = mersenne();
+#else
+				for (auto it = _packets.find(p.second->id);
+					 it != _packets.end();
+					 it = _packets.find(p.second->id))
+					p.second->id = mersenne();
+#endif
 				cout << "New client: " << p.first.address
 					<< ":" << ntohs(p.first.port)
 					<< " id: " << p.second->id
