@@ -1,1 +1,1 @@
-# ActivityWatcher
+﻿# ActivityWatcher

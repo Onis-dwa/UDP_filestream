@@ -1,4 +1,4 @@
-#include <iostream>
+п»ї#include <iostream>
 #include <random>
 #include <thread>
 #include "client.h"
@@ -7,7 +7,7 @@
 
 using namespace std;
 
-// рандомайзер
+// СЂР°РЅРґРѕРјР°Р№Р·РµСЂ
 static random_device rd;
 static mt19937 mersenne(rd());
 
@@ -29,14 +29,14 @@ udp_socket::status client::connectTo(const string& addr, const uint16_t port) {
 
 int client::exec() {
 	while (true) {
-		// генерация размера псевдофайла
+		// РіРµРЅРµСЂР°С†РёСЏ СЂР°Р·РјРµСЂР° РїСЃРµРІРґРѕС„Р°Р№Р»Р°
 		_packsCount = mersenne() % 60000 + 1;
-		_backLen = mersenne() % (data_size - 1) + 1; // минимум 1 байт
+		_backLen = mersenne() % (data_size - 1) + 1; // РјРёРЅРёРјСѓРј 1 Р±Р°Р№С‚
 		_totalLen = (_packsCount - 1) * data_size + _backLen;
 		cout << "New file with packet count: "
 			<< _packsCount << " " << _totalLen << endl;
 
-		// обнуление
+		// РѕР±РЅСѓР»РµРЅРёРµ
 		_pd.id = 0;
 		_pd.type = packetType::PUT;
 		_pd.seq_total = _packsCount;
@@ -44,7 +44,7 @@ int client::exec() {
 		_packsLeft = _packsCount;
 		_checksummCorrect = false;
 
-		// заполнение псевдофайла
+		// Р·Р°РїРѕР»РЅРµРЅРёРµ РїСЃРµРІРґРѕС„Р°Р№Р»Р°
 		for (auto& packet : _packetsInfo)
 			packet = packetType::PUT;
 		if (_rawData) ::operator delete(_rawData, _totalLen);
@@ -57,9 +57,9 @@ int client::exec() {
 		prntArr(_rawData, _packsCount, _backLen);
 #endif
 		
-		// получение id
+		// РїРѕР»СѓС‡РµРЅРёРµ id
 		if (getId()) return 1;
-		// отправка оставшегося
+		// РѕС‚РїСЂР°РІРєР° РѕСЃС‚Р°РІС€РµРіРѕСЃСЏ
 		if (sendAll()) return 2;
 		if (!_checksummCorrect) return 3;
 	}
@@ -77,20 +77,20 @@ bool client::getId() {
 	_pd.seq_number = indx;
 	deepCopyPD(&_rawData[indx * data_size], &_pd.data[0], size);
 	
-	int cnt = 5; // количество попыток
+	int cnt = 5; // РєРѕР»РёС‡РµСЃС‚РІРѕ РїРѕРїС‹С‚РѕРє
 	while (_pd.id == 0 && cnt > 0) {
-		// отправляем наш пакет
+		// РѕС‚РїСЂР°РІР»СЏРµРј РЅР°С€ РїР°РєРµС‚
 		if (_socket.udp_send(_pd, size + 17) <= 0) { // +17 packetData
 			cout << "err send: " << WSAGetLastError() << " i: " << indx << endl;
 			return true;
 		}
 
-		// должны получить ответ в течении 2-х секунд
+		// РґРѕР»Р¶РЅС‹ РїРѕР»СѓС‡РёС‚СЊ РѕС‚РІРµС‚ РІ С‚РµС‡РµРЅРёРё 2-С… СЃРµРєСѓРЅРґ
 		auto begin = steady_clock::now();
 		while (duration_cast<seconds>(steady_clock::now() - begin).count() < 2) {
 			auto pack = _socket.udp_recv();
 			if (pack.first.dataSize > 16) {
-				// небольшой гуард
+				// РЅРµР±РѕР»СЊС€РѕР№ РіСѓР°СЂРґ
 				if (pack.second->type != packetType::ACK) continue;
 				if (pack.second->seq_number > pack.second->seq_total) continue;
 
@@ -106,10 +106,10 @@ bool client::getId() {
 #endif
 				if (pack.second->id != 0) {
 					_pd.id = pack.second->id;
-					_packetsInfo[indx] = packetType::ACK; // не забываем засеттить что пакет был получен
+					_packetsInfo[indx] = packetType::ACK; // РЅРµ Р·Р°Р±С‹РІР°РµРј Р·Р°СЃРµС‚С‚РёС‚СЊ С‡С‚Рѕ РїР°РєРµС‚ Р±С‹Р» РїРѕР»СѓС‡РµРЅ
 					--_packsLeft;
 					
-					if (pack.first.dataSize - 17 > 0) // проверим, если пакет единственный
+					if (pack.first.dataSize - 17 > 0) // РїСЂРѕРІРµСЂРёРј, РµСЃР»Рё РїР°РєРµС‚ РµРґРёРЅСЃС‚РІРµРЅРЅС‹Р№
 						_checksummCorrect = checkCheckSumm(&pack.second->data[0], pack.first.dataSize - 17);
 					return false;
 				}
@@ -125,21 +125,21 @@ bool client::sendAll() {
 	if (_checksummCorrect) return false;
 
 	while (_packsLeft > 0) {
-		uint32_t indx = getNext(); // рандомим блок
+		uint32_t indx = getNext(); // СЂР°РЅРґРѕРјРёРј Р±Р»РѕРє
 		uint32_t size = (indx == (_packsCount - 1) ? _backLen : data_size);
 		_pd.seq_number = indx;
 		deepCopyPD(&_rawData[indx * data_size], &_pd.data[0], size);
 
-		// пушим блок
+		// РїСѓС€РёРј Р±Р»РѕРє
 		if (_socket.udp_send(_pd, size + 17) <= 0) { // +17 packetData
 			cout << "err send: " << WSAGetLastError() << " i: " << indx << endl;
 			return true;
 		}
 
-		// читаем если есть (если нечего читать, моментально -1)
+		// С‡РёС‚Р°РµРј РµСЃР»Рё РµСЃС‚СЊ (РµСЃР»Рё РЅРµС‡РµРіРѕ С‡РёС‚Р°С‚СЊ, РјРѕРјРµРЅС‚Р°Р»СЊРЅРѕ -1)
 		auto pack = _socket.udp_recv();
 		if (pack.first.dataSize > 16) {
-			// небольшой гуард
+			// РЅРµР±РѕР»СЊС€РѕР№ РіСѓР°СЂРґ
 			if (pack.second->type != packetType::ACK) continue;
 			if (pack.second->seq_number > pack.second->seq_total) continue;
 
@@ -153,10 +153,10 @@ bool client::sendAll() {
 			if (size > 4) prt(&_pd.data[size - 4]);
 #endif
 			if (pack.second->id == _pd.id) {
-				_packetsInfo[pack.second->seq_number] = packetType::ACK; // сеттим что пакет получен
+				_packetsInfo[pack.second->seq_number] = packetType::ACK; // СЃРµС‚С‚РёРј С‡С‚Рѕ РїР°РєРµС‚ РїРѕР»СѓС‡РµРЅ
 				--_packsLeft;
 				
-				if (pack.first.dataSize - 17 > 0) // проверяем если есть crc
+				if (pack.first.dataSize - 17 > 0) // РїСЂРѕРІРµСЂСЏРµРј РµСЃР»Рё РµСЃС‚СЊ crc
 					_checksummCorrect = checkCheckSumm(&pack.second->data[0], pack.first.dataSize - 17);
 			}
 #ifdef __DEBUG_PRINT__

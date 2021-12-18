@@ -1,11 +1,11 @@
-#pragma once
+п»ї#pragma once
 
 #include <cstdint>
 
 #define __DEBUG_PRINT__
 #undef __DEBUG_PRINT__
 
-/* общие утилы для пакета */
+/* РѕР±С‰РёРµ СѓС‚РёР»С‹ РґР»СЏ РїР°РєРµС‚Р° */
 constexpr uint32_t POLY = 0x82f63b78;
 static inline uint32_t crc32c(uint32_t crc, const unsigned char* buf, size_t len) {
 	crc = ~crc;
@@ -17,12 +17,12 @@ static inline uint32_t crc32c(uint32_t crc, const unsigned char* buf, size_t len
 	return ~crc;
 }
 union uint32_to_char {
-	/* union для конверта инта в массив байтов */
+	/* union РґР»СЏ РєРѕРЅРІРµСЂС‚Р° РёРЅС‚Р° РІ РјР°СЃСЃРёРІ Р±Р°Р№С‚РѕРІ */
 	uint32_t value;
 	uint8_t chars[4];
 };
 static string strAlign(uint32_t value) {
-	/* Общая функция для выравнивания числа без знака 32 бита */
+	/* РћР±С‰Р°СЏ С„СѓРЅРєС†РёСЏ РґР»СЏ РІС‹СЂР°РІРЅРёРІР°РЅРёСЏ С‡РёСЃР»Р° Р±РµР· Р·РЅР°РєР° 32 Р±РёС‚Р° */
 	string buffer = "         0";
 	for (uint32_t i = 9; i >= 0 && value; --i, value /= 10) {
 		buffer[i] = value % 10 + 48;
@@ -31,13 +31,13 @@ static string strAlign(uint32_t value) {
 }
 
 static void prt(const uint8_t* data, uint32_t msize = 4) {
-	/* выводит от указателя data четыре символа */
+	/* РІС‹РІРѕРґРёС‚ РѕС‚ СѓРєР°Р·Р°С‚РµР»СЏ data С‡РµС‚С‹СЂРµ СЃРёРјРІРѕР»Р° */
 	for (int j = 0; j < 4 && j < msize; ++j)
 		cout << data[j];
 }
 
 static void prntArr(uint8_t* data, uint32_t blocksCnt, uint32_t backSize) {
-	/* вывод для каждого блока первых и последних 4-рёх символов */
+	/* РІС‹РІРѕРґ РґР»СЏ РєР°Р¶РґРѕРіРѕ Р±Р»РѕРєР° РїРµСЂРІС‹С… Рё РїРѕСЃР»РµРґРЅРёС… 4-СЂС‘С… СЃРёРјРІРѕР»РѕРІ */
 	cout << "bound:    0         1         2         3         4     "
 		<< "    5         6         7         8         9";
 	for (uint32_t i = 0; i < blocksCnt; ++i) {

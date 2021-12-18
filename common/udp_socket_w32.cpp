@@ -1,4 +1,4 @@
-#include <iostream>
+п»ї#include <iostream>
 #include "udp_socket.h"
 
 using std::cout;
@@ -32,12 +32,12 @@ udp_socket::status udp_socket::init(const char* address, uint16_t port) {
 	if (_status != status::no_init)
 		return status::stop_req;
 	
-	// инит unbound сокета
+	// РёРЅРёС‚ unbound СЃРѕРєРµС‚Р°
 	//                        SOCK_STREAM, IPPROTO_TCP
 	//                        SOCK_DGRAM,  IPPROTO_UDP
 	_socket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
 
-	// Структура хост/порт/протокол
+	// РЎС‚СЂСѓРєС‚СѓСЂР° С…РѕСЃС‚/РїРѕСЂС‚/РїСЂРѕС‚РѕРєРѕР»
 	_address.sin_family = AF_INET;
 	//_address.sin_addr.s_addr = inet_addr(address); deprecated
 	if (inet_pton(AF_INET, address, &_address.sin_addr) != 1)
@@ -48,11 +48,11 @@ udp_socket::status udp_socket::init(const char* address, uint16_t port) {
 	return _status = status::init;
 }
 udp_socket::status udp_socket::start() {
-	// старт только при no_init
+	// СЃС‚Р°СЂС‚ С‚РѕР»СЊРєРѕ РїСЂРё no_init
 	if (_status != status::init)
 		return status::init_req;
 	
-	// связываем сокет с адресом и портом
+	// СЃРІСЏР·С‹РІР°РµРј СЃРѕРєРµС‚ СЃ Р°РґСЂРµСЃРѕРј Рё РїРѕСЂС‚РѕРј
 	if (bind(_socket, (SOCKADDR*)&_address, _addressLen) == SOCKET_ERROR)
 		return _status = status::err_bind;
 	
@@ -60,7 +60,7 @@ udp_socket::status udp_socket::start() {
 	//if (listen(_socket, SOMAXCONN) == SOCKET_ERROR)
 	//	return _status = status::err_listen;
 
-	// получаем реальный порт
+	// РїРѕР»СѓС‡Р°РµРј СЂРµР°Р»СЊРЅС‹Р№ РїРѕСЂС‚
 	if (_address.sin_port == 0) {
 		if (getsockname(_socket, (SOCKADDR*)&_address, &_addressLen) == -1) {
 			_address = { 0 };
@@ -86,7 +86,7 @@ int udp_socket::udp_send(const packetData& pd, const int dataSize) {
 	return sendto(_socket, (char*)&pd, dataSize, 0, (SOCKADDR*)&_address, _addressLen);
 }
 int udp_socket::udp_sendC(const packetData& pd, const metaData & md) {
-	// заполняем структуру клиента
+	// Р·Р°РїРѕР»РЅСЏРµРј СЃС‚СЂСѓРєС‚СѓСЂСѓ РєР»РёРµРЅС‚Р°
 	sockaddr_in client;
 	client.sin_family = AF_INET;
 	client.sin_addr.S_un.S_addr = md.address;
@@ -94,19 +94,19 @@ int udp_socket::udp_sendC(const packetData& pd, const metaData & md) {
 	return sendto(_socket, (char*)&pd, md.dataSize, 0, (SOCKADDR*)&client, sizeof(client));
 }
 pair<metaData, packetData*> udp_socket::udp_recv() {
-	// получение данных
+	// РїРѕР»СѓС‡РµРЅРёРµ РґР°РЅРЅС‹С…
 	sockaddr_in client;
 	int clientSize = sizeof(client);
 	auto rc = recvfrom(_socket, (char*)&_buffer, packet_size, 0, (SOCKADDR*)&client, &clientSize);
 	//auto rc = recvfrom(_socket, (char*)&_buffer, packet_size, 0, 0, 0);
 
-	// заполнение мета данных
+	// Р·Р°РїРѕР»РЅРµРЅРёРµ РјРµС‚Р° РґР°РЅРЅС‹С…
 	metaData md;
 	md.address = client.sin_addr.S_un.S_addr;
 	md.port = client.sin_port;
 	md.dataSize = rc;
 
-	// проверка нужно ли передовать буфер
+	// РїСЂРѕРІРµСЂРєР° РЅСѓР¶РЅРѕ Р»Рё РїРµСЂРµРґРѕРІР°С‚СЊ Р±СѓС„РµСЂ
 	if (rc > 0) {
 		return { move(md), &_buffer };
 	}

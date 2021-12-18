@@ -1,4 +1,4 @@
-#pragma once
+п»ї#pragma once
 
 #include <vector>
 #include <string>
@@ -23,7 +23,7 @@ private:
 	bool checkCheckSumm(const uint8_t* data, const int size);
 	
 	udp_socket _socket;
-	// отправляемая дата
+	// РѕС‚РїСЂР°РІР»СЏРµРјР°СЏ РґР°С‚Р°
 	vector<packetType> _packetsInfo;
 	uint32_t _packsCount;
 	uint8_t* _rawData;

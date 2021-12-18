@@ -1,4 +1,4 @@
-#pragma once
+п»ї#pragma once
 
 #include <string>
 #include <cstdint>
@@ -18,32 +18,32 @@ int initWSSock(); // init windows sockets
 using std::string;
 using std::pair;
 
-// максимальный размер буфера
+// РјР°РєСЃРёРјР°Р»СЊРЅС‹Р№ СЂР°Р·РјРµСЂ Р±СѓС„РµСЂР°
 constexpr uint32_t packet_size = 1472;
 constexpr uint32_t data_size = 1455;
 
-// энумы и структуры пакета
+// СЌРЅСѓРјС‹ Рё СЃС‚СЂСѓРєС‚СѓСЂС‹ РїР°РєРµС‚Р°
 enum class packetType: uint8_t {
 	PUT = 0,
 	ACK
 };
 struct packetData {
-	uint32_t seq_number;     // номер пакета
-	uint32_t seq_total;      // количество пакетов
-	//uint8_t id[8];           // идентификатор
-	uint64_t id;             // идентификатор не массивом, так проще
-	packetType type;         // тип пакета переместил вниз, из-за выравнивания
-	uint8_t data[data_size]; // данные
+	uint32_t seq_number;     // РЅРѕРјРµСЂ РїР°РєРµС‚Р°
+	uint32_t seq_total;      // РєРѕР»РёС‡РµСЃС‚РІРѕ РїР°РєРµС‚РѕРІ
+	//uint8_t id[8];           // РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ
+	uint64_t id;             // РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РЅРµ РјР°СЃСЃРёРІРѕРј, С‚Р°Рє РїСЂРѕС‰Рµ
+	packetType type;         // С‚РёРї РїР°РєРµС‚Р° РїРµСЂРµРјРµСЃС‚РёР» РІРЅРёР·, РёР·-Р·Р° РІС‹СЂР°РІРЅРёРІР°РЅРёСЏ
+	uint8_t data[data_size]; // РґР°РЅРЅС‹Рµ
 };
 static_assert(sizeof(packetData) == packet_size, "packet size incorrect");
 struct metaData {
-	int dataSize;      // количество прочитанных данных
-	uint32_t address;  // адрес клиента
-	uint16_t port;     // порт клиента
+	int dataSize;      // РєРѕР»РёС‡РµСЃС‚РІРѕ РїСЂРѕС‡РёС‚Р°РЅРЅС‹С… РґР°РЅРЅС‹С…
+	uint32_t address;  // Р°РґСЂРµСЃ РєР»РёРµРЅС‚Р°
+	uint16_t port;     // РїРѕСЂС‚ РєР»РёРµРЅС‚Р°
 };
 
 class udp_socket {
-	/* кросс платформенная обёртка для сокета */
+	/* РєСЂРѕСЃСЃ РїР»Р°С‚С„РѕСЂРјРµРЅРЅР°СЏ РѕР±С‘СЂС‚РєР° РґР»СЏ СЃРѕРєРµС‚Р° */
 public:
 	enum class status : uint8_t {
 		no_init = 0,
@@ -64,8 +64,8 @@ public:
 	status start();
 	status stop();
 
-	int udp_send (const packetData& pd, const int dataSize); // отправка используя _address
-	int udp_sendC(const packetData& pd, const metaData& md); // отправка по креденшелам
+	int udp_send (const packetData& pd, const int dataSize); // РѕС‚РїСЂР°РІРєР° РёСЃРїРѕР»СЊР·СѓСЏ _address
+	int udp_sendC(const packetData& pd, const metaData& md); // РѕС‚РїСЂР°РІРєР° РїРѕ РєСЂРµРґРµРЅС€РµР»Р°Рј
 	pair<metaData, packetData*> udp_recv();
 	
 	uint16_t getPort() const;
@@ -74,7 +74,7 @@ public:
 private:
 #ifdef _WIN32
 	SOCKET _socket = INVALID_SOCKET;
-	sockaddr_in _address; // дабы каждый раз не генерить
+	sockaddr_in _address; // РґР°Р±С‹ РєР°Р¶РґС‹Р№ СЂР°Р· РЅРµ РіРµРЅРµСЂРёС‚СЊ
 	socklen_t _addressLen;
 #elif __linux__
 	int _socket;

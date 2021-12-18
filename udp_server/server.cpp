@@ -1,10 +1,10 @@
-#include <iostream>
+п»ї#include <iostream>
 #include <random>
 #include "server.h"
 
 #include "common.hpp"
 
-// рандомайзер
+// СЂР°РЅРґРѕРјР°Р№Р·РµСЂ
 static random_device rd;
 static mt19937_64 mersenne(rd());
 
@@ -28,13 +28,13 @@ int server::exec() {
 		auto p = _socket.udp_recv();
 		auto currTime = steady_clock::now();
 
-		// нас интересуют только успешные запросы
+		// РЅР°СЃ РёРЅС‚РµСЂРµСЃСѓСЋС‚ С‚РѕР»СЊРєРѕ СѓСЃРїРµС€РЅС‹Рµ Р·Р°РїСЂРѕСЃС‹
 		if (p.first.dataSize > 17) {
-			// небольшой контроль ошибок
+			// РЅРµР±РѕР»СЊС€РѕР№ РєРѕРЅС‚СЂРѕР»СЊ РѕС€РёР±РѕРє
 			if (p.second->type != packetType::PUT) continue;
 			if (p.second->seq_number > p.second->seq_total) continue;
 
-			// если id нету сгенерируем
+			// РµСЃР»Рё id РЅРµС‚Сѓ СЃРіРµРЅРµСЂРёСЂСѓРµРј
 			if (p.second->id == 0) {
 				p.second->id = mersenne();
 				while (_packets.contains(p.second->id)) p.second->id = mersenne();
@@ -45,7 +45,7 @@ int server::exec() {
 					<< " expected size: " << (p.second->seq_total * data_size)
 					<< endl;
 
-				// создаём запись о файле
+				// СЃРѕР·РґР°С‘Рј Р·Р°РїРёСЃСЊ Рѕ С„Р°Р№Р»Рµ
 				_packets[p.second->id] = {
 					currTime,
 					0,
@@ -56,7 +56,7 @@ int server::exec() {
 				};
 			}
 
-			// сохраняем данные
+			// СЃРѕС…СЂР°РЅСЏРµРј РґР°РЅРЅС‹Рµ
 			_packets[p.second->id].lastActive = currTime;
 			++_packets[p.second->id].seq_current;
 			deepCopyPD(
@@ -65,13 +65,13 @@ int server::exec() {
 				p.first.dataSize - 17
 			);
 
-			// подсчитываем размер хвоста
+			// РїРѕРґСЃС‡РёС‚С‹РІР°РµРј СЂР°Р·РјРµСЂ С…РІРѕСЃС‚Р°
 			if (p.second->seq_number == (p.second->seq_total-1)) {
 				_packets[p.second->id].len_back   = p.first.dataSize - 17;
 				_packets[p.second->id].len_total += p.first.dataSize - 17;
 			}
 
-			// отправляем ACK
+			// РѕС‚РїСЂР°РІР»СЏРµРј ACK
 #ifdef __DEBUG_PRINT__
 			cout << "id: " << p.second->id
 				<< " i: " << strAlign(p.second->seq_number).substr(5, 5)
@@ -82,7 +82,7 @@ int server::exec() {
 #endif
 			p.second->type = packetType::ACK;
 			if (_packets[p.second->id].seq_current == _packets[p.second->id].seq_total) {
-				// crc и завершаем соединение
+				// crc Рё Р·Р°РІРµСЂС€Р°РµРј СЃРѕРµРґРёРЅРµРЅРёРµ
 				uint32_to_char crc;
 				crc.value = crc32c(0, _packets[p.second->id].data, _packets[p.second->id].len_total);
 #ifdef __DEBUG_PRINT__
@@ -106,7 +106,7 @@ int server::exec() {
 				_packets.erase(p.second->id);
 			}
 			else {
-				// отправляем что блок получили
+				// РѕС‚РїСЂР°РІР»СЏРµРј С‡С‚Рѕ Р±Р»РѕРє РїРѕР»СѓС‡РёР»Рё
 #ifdef __DEBUG_PRINT__
 				cout << endl;
 #endif
@@ -115,7 +115,7 @@ int server::exec() {
 			}
 		}
 
-		// раз в 40с чекаем устаревшие сокеты
+		// СЂР°Р· РІ 40СЃ С‡РµРєР°РµРј СѓСЃС‚Р°СЂРµРІС€РёРµ СЃРѕРєРµС‚С‹
 		if (duration_cast<seconds>(currTime - lastExpiredCheck).count() > 40) {
 			vector<decltype(_packets.begin())> expiredConnections;
 			for (auto it = _packets.begin(); it != _packets.end(); ++it) {
