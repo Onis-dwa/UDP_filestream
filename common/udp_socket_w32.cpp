@@ -90,7 +90,7 @@ int udp_socket::udp_sendC(const packetData& pd, const metaData & md) {
 	sockaddr_in client;
 	client.sin_family = AF_INET;
 	client.sin_addr.S_un.S_addr = md.address;
-	client.sin_port = htons(md.port);
+	client.sin_port = md.port;
 	return sendto(_socket, (char*)&pd, md.dataSize, 0, (SOCKADDR*)&client, sizeof(client));
 }
 pair<metaData, packetData*> udp_socket::udp_recv() {
@@ -98,6 +98,7 @@ pair<metaData, packetData*> udp_socket::udp_recv() {
 	sockaddr_in client;
 	int clientSize = sizeof(client);
 	auto rc = recvfrom(_socket, (char*)&_buffer, packet_size, 0, (SOCKADDR*)&client, &clientSize);
+	//auto rc = recvfrom(_socket, (char*)&_buffer, packet_size, 0, 0, 0);
 
 	// заполнение мета данных
 	metaData md;
@@ -109,8 +110,5 @@ pair<metaData, packetData*> udp_socket::udp_recv() {
 	if (rc > 0) {
 		return { move(md), &_buffer };
 	}
-	if (rc == 0){
-		return { move(md), nullptr};
-	}
-	return { move(md), nullptr};
+	return { move(md), nullptr };
 }

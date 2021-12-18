@@ -22,11 +22,11 @@ using std::pair;
 constexpr uint32_t packet_size = 1472;
 constexpr uint32_t data_size = 1455;
 
+// энумы и структуры пакета
 enum class packetType: uint8_t {
 	PUT = 0,
 	ACK
 };
-
 struct packetData {
 	uint32_t seq_number;     // номер пакета
 	uint32_t seq_total;      // количество пакетов
@@ -36,25 +36,14 @@ struct packetData {
 	uint8_t data[data_size]; // данные
 };
 static_assert(sizeof(packetData) == packet_size, "packet size incorrect");
-
 struct metaData {
 	int dataSize;      // количество прочитанных данных
 	uint32_t address;  // адрес клиента
 	uint16_t port;     // порт клиента
 };
 
-constexpr uint32_t POLY = 0x82f63b78;
-static inline uint32_t crc32c(uint32_t crc, const unsigned char* buf, size_t len) {
-	crc = ~crc;
-	while (len--) {
-		crc ^= *buf++;
-		for (int k = 0; k < 8; k++)
-			crc = crc & 1 ? (crc >> 1) ^ POLY : crc >> 1;
-	}
-	return ~crc;
-}
-
 class udp_socket {
+	/* кросс платформенная обёртка для сокета */
 public:
 	enum class status : uint8_t {
 		no_init = 0,

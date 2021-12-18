@@ -16,7 +16,8 @@ int main() {
 		return 1;
 	}
 	cout << "Connected?" << endl;
-	
+
+	srand(time(0));
 	const auto erc = cl.exec();
 	cout << "Server stopped with code: " << erc << endl;
 #ifdef _WIN32

@@ -4,32 +4,7 @@
 
 using namespace std;
 
-//typedef packetData pd;
-//typedef metaData md;
-
-//pd buff;
-
-//pair<md, pd*> foo() {
-//	md m;
-//	m.dataSize = rand();
-//	m.address = rand();
-//	m.port = rand();
-//	cout << &m << " " << m.dataSize << endl;
-//	return { move(m), &buff };
-//	return { {}, &buff };
-//}
-
 int main() {
-	//cout << sizeof(pd) << endl;
-	//cout << sizeof(md) << endl;
-	//
-	//cout << &buff << endl;
-	//cout << "foo" << endl;
-	//auto a = foo();
-	//cout << "ret" << endl;
-	//cout << &a.first << " " << a.first.dataSize << endl;
-	//cout << a.second << endl;
-	//cin.get();
 #ifdef _WIN32
 	if (initWSSock()) { return 1; } // init failed
 #endif
