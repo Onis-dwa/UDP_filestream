@@ -81,9 +81,7 @@ public:
 	static int getError();
 
 private:
-#ifdef _WIN32
 	socklen_t _addressLen;
-#endif
 	SOCKET _socket = INVALID_SOCKET;
 	sockaddr_in _address;
 	packetData _buffer = { 0 };
