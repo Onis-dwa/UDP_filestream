@@ -12,6 +12,13 @@ int initWSSock(); // init windows sockets
 
 #elif  __linux__
 #include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <unistd.h>
+
+typedef int SOCKET;
+#define INVALID_SOCKET -1 // на шиндовс unsigned
+#define SOCKET_ERROR -1
 
 #endif
 
@@ -71,15 +78,14 @@ public:
 	uint16_t getPort() const;
 	uint32_t getAddr() const;
 
+	static int getError();
+
 private:
 #ifdef _WIN32
-	SOCKET _socket = INVALID_SOCKET;
-	sockaddr_in _address; // дабы каждый раз не генерить
 	socklen_t _addressLen;
-#elif __linux__
-	int _socket;
-	struct sockaddr_in _address;
 #endif
+	SOCKET _socket = INVALID_SOCKET;
+	sockaddr_in _address;
 	packetData _buffer = { 0 };
 	
 	status _status;

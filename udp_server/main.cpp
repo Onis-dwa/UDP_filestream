@@ -13,7 +13,7 @@ int main() {
 	auto rc = srv.start("127.0.0.1", 32094);
 	if (rc != udp_socket::status::bind) {
 		cout << "Err on bind. status: " << (uint32_t)rc
-			<< " WinError: " << WSAGetLastError() << endl;
+			<< " WinError: " << udp_socket::getError() << endl;
 		return 1;
 	}
 	cout << "Bind success on port: " << srv.getServerPort() << endl;

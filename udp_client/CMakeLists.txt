@@ -1,5 +1,5 @@
 ﻿
-target_sources(udp_client
+target_sources(tclient
 	PRIVATE
 		"main.cpp"
 		"client.h"

@@ -5,6 +5,7 @@ using std::cout;
 using std::endl;
 using std::move;
 
+#ifdef _WIN32
 int initWSSock() {
 	// from https://docs.microsoft.com/en-us/windows/win32/api/winsock2/nf-winsock2-wsastartup
 	static WSADATA wsaData;
@@ -19,6 +20,7 @@ int initWSSock() {
 	}
 	return 0;
 }
+#endif
 
 udp_socket::udp_socket():
 	_socket(INVALID_SOCKET),
@@ -55,7 +57,7 @@ udp_socket::status udp_socket::start() {
 		return status::init_req;
 	
 	// связываем сокет с адресом и портом
-	if (bind(_socket, (SOCKADDR*)&_address, _addressLen) == SOCKET_ERROR)
+	if (bind(_socket, (sockaddr*)&_address, _addressLen) == SOCKET_ERROR)
 		return _status = status::err_bind;
 	
 	// when tcp
@@ -64,7 +66,8 @@ udp_socket::status udp_socket::start() {
 
 	// получаем реальный порт
 	if (_address.sin_port == 0) {
-		if (getsockname(_socket, (SOCKADDR*)&_address, &_addressLen) == -1) {
+		if (getsockname(_socket, (sockaddr*)&_address, &_addressLen) == -1) {
+			// при ошибке зануляем
 			_address = { 0 };
 			_address.sin_port = 0;
 		}
@@ -73,7 +76,11 @@ udp_socket::status udp_socket::start() {
 	return _status = status::bind;
 }
 udp_socket::status udp_socket::stop() {
+#ifdef _WIN32
 	closesocket(_socket);
+#elif __linux__
+	close(_socket);
+#endif
 	return _status = status::no_init;
 }
 
@@ -81,30 +88,54 @@ uint16_t udp_socket::getPort() const {
 	return ntohs(_address.sin_port);
 }
 uint32_t udp_socket::getAddr() const {
+#ifdef _WIN32
 	return _address.sin_addr.S_un.S_addr;
+#elif __linux__
+	return _address.sin_addr.s_addr;
+#endif
+}
+
+int udp_socket::getError() {
+#ifdef _WIN32
+	return WSAGetLastError();
+#elif __linux__
+	return errno;
+#endif
 }
 
 int udp_socket::udp_send(const packetData& pd, const int dataSize) {
-	return sendto(_socket, (char*)&pd, dataSize, 0, (SOCKADDR*)&_address, _addressLen);
+	return sendto(_socket, (char*)&pd, dataSize, 0, (sockaddr*)&_address, _addressLen);
 }
 int udp_socket::udp_sendC(const packetData& pd, const metaData & md) {
 	// заполняем структуру клиента
 	sockaddr_in client;
 	client.sin_family = AF_INET;
+#ifdef _WIN32
 	client.sin_addr.S_un.S_addr = md.address;
+#elif __linux__
+	client.sin_addr.s_addr = md.address;
+#endif
 	client.sin_port = md.port;
-	return sendto(_socket, (char*)&pd, md.dataSize, 0, (SOCKADDR*)&client, sizeof(client));
+	return sendto(_socket, (char*)&pd, md.dataSize, 0, (sockaddr*)&client, sizeof(client));
 }
 pair<metaData, packetData*> udp_socket::udp_recv() {
 	// получение данных
 	sockaddr_in client;
 	int clientSize = sizeof(client);
-	auto rc = recvfrom(_socket, (char*)&_buffer, packet_size, 0, (SOCKADDR*)&client, &clientSize);
-	//auto rc = recvfrom(_socket, (char*)&_buffer, packet_size, 0, 0, 0);
+	auto rc = recvfrom(_socket, (char*)&_buffer, packet_size, 0, (sockaddr*)&client,
+#ifdef _WIN32
+		&clientSize);
+#elif __linux__
+		(socklen_t*)&clientSize);
+#endif
 
 	// заполнение мета данных
 	metaData md;
+#ifdef _WIN32
 	md.address = client.sin_addr.S_un.S_addr;
+#elif __linux__
+	md.address = client.sin_addr.s_addr;
+#endif
 	md.port = client.sin_port;
 	md.dataSize = rc;
 

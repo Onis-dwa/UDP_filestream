@@ -81,7 +81,7 @@ bool client::getId() {
 	while (_pd.id == 0 && cnt > 0) {
 		// отправляем наш пакет
 		if (_socket.udp_send(_pd, size + 17) <= 0) { // +17 packetData
-			cout << "err send: " << WSAGetLastError() << " i: " << indx << endl;
+			cout << "err send: " << udp_socket::getError() << " i: " << indx << endl;
 			return true;
 		}
 
@@ -132,7 +132,7 @@ bool client::sendAll() {
 
 		// пушим блок
 		if (_socket.udp_send(_pd, size + 17) <= 0) { // +17 packetData
-			cout << "err send: " << WSAGetLastError() << " i: " << indx << endl;
+			cout << "err send: " << udp_socket::getError() << " i: " << indx << endl;
 			return true;
 		}
 

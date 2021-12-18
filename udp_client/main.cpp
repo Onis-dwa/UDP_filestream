@@ -12,7 +12,7 @@ int main() {
 	auto rc = cl.connectTo("127.0.0.1", 32094);
 	if (rc != udp_socket::status::init) {
 		cout << "Err on init. status: " << (uint32_t)rc
-			<< " WinError: " << WSAGetLastError() << endl;
+			<< " WinError: " << udp_socket::getError() << endl;
 		return 1;
 	}
 	cout << "Connected?" << endl;

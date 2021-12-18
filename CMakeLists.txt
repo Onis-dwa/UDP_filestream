@@ -2,14 +2,14 @@
 project (UDP_filestream)
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
-add_executable(udp_server)
-add_executable(udp_client)
+add_executable(tserver)
+add_executable(tclient)
 
 # set up c++ version
 set(CXX_VERSION 20)
 #add_compile_options("/std:c++20")
-set_property(TARGET udp_server PROPERTY CXX_STANDARD ${CXX_VERSION})
-set_property(TARGET udp_client PROPERTY CXX_STANDARD ${CXX_VERSION})
+set_property(TARGET tserver PROPERTY CXX_STANDARD ${CXX_VERSION})
+set_property(TARGET tclient PROPERTY CXX_STANDARD ${CXX_VERSION})
 add_definitions(-DCXX_VERSION=${CXX_VERSION}) # Visual Studio cmake err fix
 
 # other compiler options
@@ -17,8 +17,8 @@ add_definitions(-DCXX_VERSION=${CXX_VERSION}) # Visual Studio cmake err fix
 #message("setting /favor:${CMAKE_HOST_SYSTEM_PROCESSOR}")
 #add_compile_options("/favor:${CMAKE_HOST_SYSTEM_PROCESSOR}")
 
-target_include_directories(udp_server PRIVATE "common") # for include resolve
-target_include_directories(udp_client PRIVATE "common") # for include resolve
+target_include_directories(tserver PRIVATE "common") # for include resolve
+target_include_directories(tclient PRIVATE "common") # for include resolve
 add_subdirectory(common)
 add_subdirectory(udp_server)
 add_subdirectory(udp_client)
