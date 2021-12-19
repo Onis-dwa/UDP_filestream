@@ -28,9 +28,12 @@ udp_socket::status client::connectTo(const string& addr, const uint16_t port) {
 }
 
 int client::exec() {
-	while (true) {
+#ifdef CLIENT_LOOP
+	while (true)
+#endif
+	{
 		// генерация размера псевдофайла
-		_packsCount = mersenne() % 60000 + 1;
+		_packsCount = mersenne() % MAX_PACKS + 1;
 		_backLen = mersenne() % (data_size - 1) + 1; // минимум 1 байт
 		_totalLen = (_packsCount - 1) * data_size + _backLen;
 		cout << "New file with packet count: "
@@ -53,7 +56,7 @@ int client::exec() {
 			//_rawData[i] = mersenne() % 256;
 			_rawData[i] = mersenne() % 94 + 33;
 
-#ifdef __DEBUG_PRINT__
+#ifdef PACK_INFO_PRINT
 		prntArr(_rawData, _packsCount, _backLen);
 #endif
 		
@@ -94,7 +97,7 @@ bool client::getId() {
 				if (pack.second->type != packetType::ACK) continue;
 				if (pack.second->seq_number > pack.second->seq_total) continue;
 
-#ifdef __DEBUG_PRINT__
+#ifdef PACK_INFO_PRINT
 				cout << "from: " << pack.first.address
 					<< ":" << ntohs(pack.first.port)
 					<< " i: " << strAlign(pack.second->seq_number).substr(5, 5)
@@ -143,7 +146,7 @@ bool client::sendAll() {
 			if (pack.second->type != packetType::ACK) continue;
 			if (pack.second->seq_number > pack.second->seq_total) continue;
 
-#ifdef __DEBUG_PRINT__
+#ifdef PACK_INFO_PRINT
 			cout << "from: " << pack.first.address
 				<< ":" << ntohs(pack.first.port)
 				<< " i: " << strAlign(pack.second->seq_number).substr(5, 5)
@@ -159,7 +162,7 @@ bool client::sendAll() {
 				if (pack.first.dataSize - 17 > 0) // проверяем если есть crc
 					_checksummCorrect = checkCheckSumm(&pack.second->data[0], pack.first.dataSize - 17);
 			}
-#ifdef __DEBUG_PRINT__
+#ifdef PACK_INFO_PRINT
 			else
 				cout << " id isn't equal!";
 			cout << endl;
@@ -180,7 +183,7 @@ bool client::checkCheckSumm(const uint8_t* data, const int size) {
 	rcrc.chars[2] = data[2];
 	rcrc.chars[3] = data[3];
 
-#ifdef __DEBUG_PRINT__
+#ifdef PACK_INFO_PRINT
 	cout << endl
 		<< "mcrc: " << mcrc << endl
 		<< "rcrc: " << rcrc.value << endl;

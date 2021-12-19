@@ -2,6 +2,14 @@
 project (UDP_filestream)
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
+# settings (see README.md)
+add_definitions(-DHOST_ADDR="127.0.0.1")
+add_definitions(-DHOST_PORT=32094)
+add_definitions(-DMAX_PACKS=60000)
+add_definitions(-DCLIENT_LOOP) # comment to disable
+add_definitions(-DPACK_INFO_PRINT) # comment to disable
+
+# targets
 add_executable(tserver)
 add_executable(tclient)
 

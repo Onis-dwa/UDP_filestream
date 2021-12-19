@@ -10,7 +10,7 @@ int main() {
 #endif
 	
 	server srv;
-	auto rc = srv.start("127.0.0.1", 32094);
+	auto rc = srv.start(HOST_ADDR, HOST_PORT);
 	if (rc != udp_socket::status::bind) {
 		cout << "Err on bind. status: " << (uint32_t)rc
 			<< " WinError: " << udp_socket::getError() << endl;

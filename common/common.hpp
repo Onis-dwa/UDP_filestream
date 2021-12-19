@@ -2,9 +2,6 @@
 
 #include <cstdint>
 
-#define __DEBUG_PRINT__
-#undef __DEBUG_PRINT__
-
 /* общие утилы для пакета */
 constexpr uint32_t POLY = 0x82f63b78;
 static inline uint32_t crc32c(uint32_t crc, const unsigned char* buf, size_t len) {

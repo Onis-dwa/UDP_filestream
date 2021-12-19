@@ -79,7 +79,7 @@ int server::exec() {
 			}
 
 			// отправляем ACK
-#ifdef __DEBUG_PRINT__
+#ifdef PACK_INFO_PRINT
 			cout << "id: " << p.second->id
 				<< " i: " << strAlign(p.second->seq_number).substr(5, 5)
 				<< " s: " << strAlign(p.first.dataSize).substr(6, 4)
@@ -92,7 +92,7 @@ int server::exec() {
 				// crc и завершаем соединение
 				uint32_to_char crc;
 				crc.value = crc32c(0, _packets[p.second->id].data, _packets[p.second->id].len_total);
-#ifdef __DEBUG_PRINT__
+#ifdef PACK_INFO_PRINT
 				cout << " crc32: " <<  crc.value << " s: " << _packets[p.second->id].len_total << endl;
 #endif
 				p.first.dataSize = 21;
@@ -101,7 +101,7 @@ int server::exec() {
 				p.second->data[2] = crc.chars[2];
 				p.second->data[3] = crc.chars[3];
 
-#ifdef __DEBUG_PRINT__
+#ifdef PACK_INFO_PRINT
 				prntArr(
 					_packets[p.second->id].data,
 					_packets[p.second->id].seq_total,
@@ -114,7 +114,7 @@ int server::exec() {
 			}
 			else {
 				// отправляем что блок получили
-#ifdef __DEBUG_PRINT__
+#ifdef PACK_INFO_PRINT
 				cout << endl;
 #endif
 				p.first.dataSize = 17;
