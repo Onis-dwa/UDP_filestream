@@ -1,4 +1,4 @@
-﻿﻿## UDP_FileStream
+## UDP_FileStream
 
 Тривиальный udp клиент-сервер <br/>
 Клиент:
